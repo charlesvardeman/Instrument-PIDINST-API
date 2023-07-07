@@ -1,8 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from main import app
-from models import PIDinst, Identifier, IdentifierTypeEnum, Owner, Manufacturer
-from pydantic import EmailStr
+from models import Identifier, IdentifierTypeEnum, Owner, Manufacturer, Model, PIDinst
 
 client = TestClient(app)
 
@@ -14,10 +13,9 @@ def sample_instrument():
         SchemaVersion="1.0",
         LandingPage="http://example.com",
         Name="Instrument1",
-        Owner=[Owner(ownerName="Owner1", ownerContact=EmailStr("owner1@example.com"),
-            ownerIdentifierValue="O1", ownerIdentifierType=IdentifierTypeEnum.DOI)],
-        Manufacturer=[Manufacturer(manufacturerName="Manufacturer1",
-            manufacturerIdentifierValue="M1", manufacturerIdentifierType=IdentifierTypeEnum.DOI)],
+        Owner=[Owner(ownerName="Owner1")],
+        Manufacturer=[Manufacturer(manufacturerName="Manufacturer1")],
+        Model=Model(modelName="Model1"),
     )
 
 def test_create_instrument(sample_instrument):
@@ -48,15 +46,6 @@ def test_delete_instrument(sample_instrument):
 
     response = client.delete("/api/instruments/1")
     assert response.status_code == 204
-
-# Add new test case
-def test_read_instruments(sample_instrument):
-    # Create an instrument first
-    client.post("/api/instruments", json=sample_instrument.dict())
-
-    response = client.get("/api/instruments")
-    assert response.status_code == 200
-    assert response.json() == [{**sample_instrument.dict(), "id": 1}]
 
 def test_read_instruments(sample_instrument):
     # Create an instrument first
